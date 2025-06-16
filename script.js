@@ -1,149 +1,210 @@
-const pinata = document.getElementById('pinata');
-const message = document.getElementById('message');
-const canvas = document.getElementById('confetti-canvas');
-const ctx = canvas.getContext('2d');
+document.addEventListener('DOMContentLoaded', () => {
+    const pinata = document.getElementById('pinata');
+    const clickHint = document.getElementById('clickHint');
+    const message = document.getElementById('message');
+    const nextBtn = document.getElementById('nextBtn');
+    const canvas = document.getElementById('confetti');
+    const ctx = canvas.getContext('2d');
 
-function resizeCanvas() {
-  canvas.width = canvas.offsetWidth;
-  canvas.height = canvas.offsetHeight;
-}
-resizeCanvas();
-window.addEventListener('resize', resizeCanvas);
+    let clickCount = 0;
+    let clickTimeout;
+    let isExploded = false;
+    let confettiAnimationId = null;
+    let particles = [];
 
-let clickCount = 0;
-let clickTimeout;
-let exploded = false;
-
-pinata.addEventListener('click', () => {
-  if (exploded) return;
-
-  clickCount++;
-
-  pinata.classList.add('shake');
-  setTimeout(() => pinata.classList.remove('shake'), 500);
-
-  clearTimeout(clickTimeout);
-
-  if (clickCount >= 5) {
-    explodePinata();
-    clickCount = 0;
-  } else {
-    clickTimeout = setTimeout(() => {
-      clickCount = 0;
-    }, 1000);
-  }
-});
-
-function explodePinata() {
-  exploded = true;
-  pinata.style.display = 'none';
-  message.classList.add('show');
-  runConfetti();
-}
-
-function runConfetti() {
-  const confettiCount = 100;
-  const confettis = [];
-
-  for (let i = 0; i < confettiCount; i++) {
-    confettis.push({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height - canvas.height,
-      size: Math.random() * 8 + 4,
-      speedY: Math.random() * 3 + 2,
-      color: `hsl(${Math.random() * 360}, 100%, 50%)`,
-      rotation: Math.random() * 360,
-      rotationSpeed: Math.random() * 10 - 5,
-    });
-  }
-
-  function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    confettis.forEach(c => {
-      ctx.save();
-      ctx.fillStyle = c.color;
-      ctx.translate(c.x, c.y);
-      ctx.rotate((c.rotation * Math.PI) / 180);
-      ctx.fillRect(-c.size / 2, -c.size / 2, c.size, c.size);
-      ctx.restore();
-
-      c.y += c.speedY;
-      c.rotation += c.rotationSpeed;
-
-      if (c.y > canvas.height) {
-        c.y = -c.size;
-      }
-    });
-
-    requestAnimationFrame(draw);
-  }
-
-  draw();
-}
-canvas.style.position = 'fixed';
-canvas.style.top = '0';
-canvas.style.left = '0';
-canvas.style.width = '100vw';
-canvas.style.height = '100vh';
-canvas.style.pointerEvents = 'none';
-resizeCanvas();
-
-
-function fadeOutCanvas(duration = 1000) {
-  let opacity = 1;
-  const step = 16 / duration;
-  function fade() {
-    opacity -= step;
-    if (opacity <= 0) {
-      canvas.style.opacity = '0';
-      canvas.style.pointerEvents = 'none';
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-    } else {
-      canvas.style.opacity = opacity.toString();
-      requestAnimationFrame(fade);
+    // Настройка canvas
+    function setupCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
     }
-  }
-  fade();
-}
+    setupCanvas();
+    window.addEventListener('resize', setupCanvas);
 
-const originalRunConfetti = runConfetti;
-runConfetti = function() {
-  originalRunConfetti();
-  setTimeout(() => {
-    fadeOutCanvas(1000);
-    // Show the button after confetti fades out
-    setTimeout(() => {
-      const btn = document.createElement('button');
-      btn.textContent = 'Далее';
-      btn.style.opacity = '0';
-      btn.style.transition = 'opacity 0.5s';
-      btn.className = 'next-btn';
-      message.appendChild(btn);
-      setTimeout(() => { btn.style.opacity = '1'; }, 50);
+    // Обработчик кликов
+    pinata.addEventListener('click', () => {
+        if (isExploded) return;
 
-      btn.addEventListener('click', () => {
-  // Сдвигаем сообщение вверх (опционально)
-  message.style.transition = 'transform 0.7s cubic-bezier(.4,2,.6,1)';
-  message.style.transform = 'translateY(-80px)';
+        clickCount++;
 
-  btn.style.pointerEvents = 'none';
+        // Анимация тряски
+        pinata.style.animation = 'none';
+        void pinata.offsetWidth;
+        pinata.style.animation = 'shake 0.5s';
 
-  setTimeout(() => {
-    const extra = document.createElement('div');
-    extra.className = 'extra-text';
-    extra.style.marginTop = '20px';
-    extra.style.opacity = '0';
-    extra.style.transition = 'opacity 0.7s ease';
-    extra.textContent = 'Здесь появится дополнительный текст.';
+        clearTimeout(clickTimeout);
 
-    message.appendChild(extra);
-
-    setTimeout(() => {
-      extra.style.opacity = '1';
-    }, 50);
-  }, 700);
+        if (clickCount >= 5) {
+            explodePinata();
+        } else {
+            clickTimeout = setTimeout(() => {
+                clickCount = 0;
+            }, 1000);
+        }
     });
-    }, 50);
-  }, 1000);
-};
+
+    // Взрыв пиньяты
+    function explodePinata() {
+        isExploded = true;
+        pinata.style.opacity = '0';
+        clickHint.style.opacity = '0';
+
+        setTimeout(() => {
+            message.classList.add('show');
+            initConfetti();
+            animateConfetti();
+        }, 300);
+    }
+
+    // Инициализация конфетти
+    function initConfetti() {
+        const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#ff9900', '#ff66cc'];
+
+        for (let i = 0; i < 200; i++) {
+            particles.push({
+                x: Math.random() * canvas.width,
+                y: -Math.random() * canvas.height,
+                size: Math.random() * 12 + 6,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                speed: Math.random() * 4 + 3,
+                angle: Math.random() * Math.PI * 2,
+                rotation: Math.random() * 0.3 - 0.15,
+                shape: Math.floor(Math.random() * 3)
+            });
+        }
+    }
+
+    // Анимация конфетти
+    function animateConfetti() {
+        if (confettiAnimationId) {
+            cancelAnimationFrame(confettiAnimationId);
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (Math.random() < 0.4) {
+                const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#ff9900', '#ff66cc'];
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: -10,
+                    size: Math.random() * 12 + 6,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    speed: Math.random() * 4 + 3,
+                    angle: Math.random() * Math.PI * 2,
+                    rotation: Math.random() * 0.3 - 0.15,
+                    shape: Math.floor(Math.random() * 3)
+                });
+            }
+
+            for (let i = 0; i < particles.length; i++) {
+                const p = particles[i];
+
+                ctx.save();
+                ctx.translate(p.x, p.y);
+                ctx.rotate(p.angle);
+                ctx.fillStyle = p.color;
+
+                switch (p.shape) {
+                    case 0: // Квадрат
+                        ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+                        break;
+                    case 1: // Круг
+                        ctx.beginPath();
+                        ctx.arc(0, 0, p.size / 2, 0, Math.PI * 2);
+                        ctx.fill();
+                        break;
+                    case 2: // Сердце
+                        ctx.beginPath();
+                        ctx.moveTo(0, -p.size / 3);
+                        ctx.bezierCurveTo(
+                            p.size / 2, -p.size / 2,
+                            p.size / 2, p.size / 4,
+                            0, p.size / 2
+                        );
+                        ctx.bezierCurveTo(
+                            -p.size / 2, p.size / 4,
+                            -p.size / 2, -p.size / 2,
+                            0, -p.size / 3
+                        );
+                        ctx.fill();
+                        break;
+                }
+
+                ctx.restore();
+
+                p.y += p.speed;
+                p.x += Math.sin(p.y * 0.01 + p.angle) * 2;
+                p.angle += p.rotation;
+
+                if (p.y > canvas.height + 50) {
+                    particles.splice(i, 1);
+                    i--;
+                }
+            }
+
+            if (particles.length > 400) {
+                particles = particles.slice(100);
+            }
+
+            confettiAnimationId = requestAnimationFrame(animate);
+        }
+
+        animate();
+    }
+
+    // Кнопка "Далее" и шаги
+    nextBtn.addEventListener('click', () => {
+        const steps = [
+            `
+            <h2>Спасибо большое тебе!</h2>
+            <p>За доброе, не сухое общение!</p>
+            <p>За поддержку в нужные моменты!</p>
+            <p>За 3304 кружков/голосовых сообщений!</p>
+            `,
+            `
+            <h2>Я желаю тебе!</h2>
+            <p>Делать всё, что захочешь!</p>
+            <p>Набей татуировку если хочешь, заведи собаку Роа, кошечек Аврору и Афину в дальнейшем!</p>
+            <p>Пускай у тебя будет больше свободного времени, чтобы играть в Sims 4, Roblox ферму!</p>
+            <p>Чтобы меньше плохих дней и меньше разочарований в жизни было!</p>
+            <p>А главное, чтобы этот день прошел отлично!</p>
+            `,
+            `
+            <h2>Я горжусь тобой!</h2>
+            <p>За то, что ты не зацикливаешься на плохом!</p>
+            <p>За то, что ты сдала экзамены!</p>
+            <p>И конечно же за то, что ты умная и веселая!</p>
+            `
+        ];
+        let currentStep = 0;
+
+        function renderStep(index) {
+            message.innerHTML = `
+                ${steps[index]}
+                <button class="btn" id="nextStepBtn">Далее</button>
+            `;
+            document.getElementById('nextStepBtn').addEventListener('click', () => {
+                currentStep++;
+                if (currentStep < steps.length) {
+                    renderStep(currentStep);
+                } else {
+                    message.innerHTML = `
+                        <h2>На этом всё!</h2>
+                        <p>С Днем Рождения ещё раз, Алиса!!!</p>
+                        <button class="btn" id="restartBtn">Еще раз?</button>
+                    `;
+                    document.getElementById('restartBtn').addEventListener('click', () => {
+                        location.reload();
+                    });
+                }
+            });
+        }
+
+        message.style.transform = 'translate(-50%, -50%) scale(1.1)';
+        message.style.boxShadow = '0 15px 40px rgba(0,0,0,0.3)';
+        setTimeout(() => {
+            renderStep(currentStep);
+            message.style.transform = 'translate(-50%, -50%) scale(1)';
+        }, 300);
+    });
+});

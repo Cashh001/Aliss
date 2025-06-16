@@ -1,18 +1,32 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Пеньята с анимацией конфетти</title>
-  <link rel="stylesheet" href="styles.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Алиса!</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div id="pinata-container">
-    <img id="pinata" src="pinata.png" alt="Пеньята" />
-    <canvas id="confetti-canvas"></canvas>
-    <div id="message">С Днем Рожденьем, Алиса!!!</div>
-  </div>
+    <div class="decoration">🙄💅</div>
+    <div class="decoration">🥳🥳🥳</div>
+    <div class="decoration">1️⃣6️⃣</div>
+    <div class="decoration">🤍</div>
 
-  <script src="script.js"></script>
+    <div class="container">
+        <div class="pinata-wrapper">
+            <div class="click-hint" id="clickHint">Кликай на бантик!</div>
+            <div class="pinata" id="pinata">
+                <img src="pinata.png" alt="Пиньята">
+            </div>
+        </div>
+        <div class="message" id="message">
+            <h2>С Днём Рождения, Алиса!</h2>
+            <p>И Доброе Утро, 16-ти летняя легенда!</p>
+            <button class="btn" id="nextBtn">Далее</button>
+        </div>
+        <canvas id="confetti"></canvas>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
