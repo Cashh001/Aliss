@@ -191,6 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     message.innerHTML = `
                         <h2>На этом всё!</h2>
                         <p>С Днем Рождения ещё раз, Алиса!!!</p>
+                        <p>🥳🥳🥳</p>
                         <button class="btn" id="restartBtn">Еще раз?</button>
                     `;
                     document.getElementById('restartBtn').addEventListener('click', () => {
