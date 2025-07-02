@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let confettiAnimationId = null;
     let particles = [];
 
-    // Настройка canvas
+    
     function setupCanvas() {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
@@ -20,13 +20,13 @@ document.addEventListener('DOMContentLoaded', () => {
     setupCanvas();
     window.addEventListener('resize', setupCanvas);
 
-    // Обработчик кликов
+    
     pinata.addEventListener('click', () => {
         if (isExploded) return;
 
         clickCount++;
 
-        // Анимация тряски
+        
         pinata.style.animation = 'none';
         void pinata.offsetWidth;
         pinata.style.animation = 'shake 0.5s';
@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Взрыв пиньяты
+    
     function explodePinata() {
         isExploded = true;
         pinata.style.opacity = '0';
@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 300);
     }
 
-    // Инициализация конфетти
+    
     function initConfetti() {
         const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#ff9900', '#ff66cc'];
 
@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Анимация конфетти
+    
     function animateConfetti() {
         if (confettiAnimationId) {
             cancelAnimationFrame(confettiAnimationId);
@@ -105,15 +105,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 ctx.fillStyle = p.color;
 
                 switch (p.shape) {
-                    case 0: // Квадрат
+                    case 0: 
                         ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
                         break;
-                    case 1: // Круг
+                    case 1: 
                         ctx.beginPath();
                         ctx.arc(0, 0, p.size / 2, 0, Math.PI * 2);
                         ctx.fill();
                         break;
-                    case 2: // Сердце
+                    case 2: 
                         ctx.beginPath();
                         ctx.moveTo(0, -p.size / 3);
                         ctx.bezierCurveTo(
@@ -152,14 +152,14 @@ document.addEventListener('DOMContentLoaded', () => {
         animate();
     }
 
-    // Кнопка "Далее" и шаги
+    
     nextBtn.addEventListener('click', () => {
         const steps = [
             `
             <h2>Спасибо большое тебе!</h2>
             <p>За доброе, не сухое общение!</p>
             <p>За поддержку в нужные моменты!</p>
-            <p>За 3304 кружков/голосовых сообщений!</p>
+            <p>За 3610 кружков/голосовых сообщений!</p>
             `,
             `
             <h2>Я желаю тебе!</h2>
@@ -190,6 +190,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     message.innerHTML = `
                         <h2>На этом всё!</h2>
+                        <p>Понимаю, по масштабам это не твой блокнот Марине, но я старался!</p>
                         <p>С Днем Рождения ещё раз, Алиса!!!</p>
                         <p>🥳🥳🥳</p>
                         <button class="btn" id="restartBtn">Еще раз?</button>
